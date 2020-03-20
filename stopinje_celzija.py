@@ -1,5 +1,12 @@
 import glob
 import time
+import smtplib, ssl
+
+port = 465  # For SSL
+smtp_server = "smtp.gmail.com"
+sender_email = "LEDgrow2@gmail.com"  # Enter your address
+receiver_email = "LEDgrow2@gmail.com"  # Enter receiver address
+password = input("Type your password and press enter: ")
 
 base_dir = '/sys/bus/w1/devices/'
 device_folder = glob.glob(base_dir + '28*')[0]
@@ -30,7 +37,7 @@ def read_temp():
     
 #loging to cloud
 from Adafruit_IO import *
-aio = Client("LEDgrow","aio_xqTa62iyYJVwjTIQKBAGvO7J5DGu") 
+aio = Client("LEDgrow","aio_TJsr55x0gn0fVWAOZuyGjj5efJqf") 
 
 
 while True:
@@ -38,13 +45,36 @@ while True:
     temp_c = read_temp()
     var=temp_c
 
-    if [temp_c < 35]:
-         print ("temparatura je pod 35 stopinj celzija")
-         print (aio.send("helloone",temp_c))
+
+    if(temp_c < 27):
+        print ("temparatura je pod 35 stopinj celzija")
+        print (aio.send("helloone",temp_c))
     else:
         while temp_c > 35:
-           continue
-#    aio.send("helloone",temp_c)
+            message = """\
+Subject: Hi there
+
+This message is sent from Python."""
+
+context = ssl.create_default_context()
+with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+    server.login(sender_email, password)
+    server.sendmail(sender_email, receiver_email, message)
+            
+            
+            
+            continue
+           
+       
+
+        
+        
+        
+        
+    
+        
+        
+#aio.send("helloone",temp_c)
                   
     time.sleep(1)
 
